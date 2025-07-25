@@ -91,7 +91,7 @@
         let coins = [];
         let score = 0;
         let gameOver = false;
-        let finishZ = -3000; // Finish line position
+        let finishZ = -3000;
 
         const scorecard = document.getElementById('scorecard');
         const gameOverScreen = document.getElementById('gameover');
@@ -245,7 +245,7 @@
         function checkCollisions() {
             if (!playerCar) return;
 
-            // Check Finish Line
+            
             if (playerCar.position.z <= finishZ) {
                 gameOver = true;
                 youWonScreen.style.display = 'block';
@@ -253,7 +253,7 @@
                 return;
             }
 
-            // Opponent Collision
+            
             if (opponentCar) {
                 const playerBox = new THREE.Box3().setFromObject(playerCar);
                 const opponentBox = new THREE.Box3().setFromObject(opponentCar);
@@ -266,7 +266,7 @@
                 }
             }
 
-            // Coins
+           
             const playerBox = new THREE.Box3().setFromObject(playerCar);
             coins.forEach((coin, index) => {
                 const coinBox = new THREE.Box3().setFromObject(coin);
