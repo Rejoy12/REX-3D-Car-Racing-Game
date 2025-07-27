@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>REX – 3D Car Racing Game</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        #startScreen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1920&q=80') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 80px;
+            text-align: center;
+            z-index: 1000;
+            color: #fff;
+        }
+        #startScreen::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+        .rex-logo {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00, 0 0 40px #ff9900;
+            animation: neonPulse 2s infinite alternate;
+            margin-bottom: 10px;
+        }
+        @keyframes neonPulse {
+            from { text-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00; }
+            to { text-shadow: 0 0 20px #ffcc00, 0 0 40px #ff9900; }
+        }
+        #startScreen h1 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        #playerName {
+            padding: 10px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            border: none;
+            text-align: center;
+            margin-bottom: 20px;
+            width: 250px;
+            outline: none;
+        }
+        #startBtn {
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, #ffcc00, #ff9900);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.2s ease;
+        }
+        #startBtn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(to right, #ffdb4d, #ffb84d);
+        }
+
+        #gameHeader {
+            position: absolute;
+            top: 5px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 200;
+        }
+        .rex-logo-small {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00;
+        }
+        #info {
+            text-align: center;
+            font-size: 1rem;
+        }
+        #changeIdBtn {
+            padding: 5px 10px;
+            font-size: 14px;
+            border: none;
+            background: #ffcc00;
+            cursor: pointer;
+            border-radius: 5px;
+            color: #000;
+        }
+        #changeIdBtn:hover {
+            background: #ffdb4d;
+        }
+        #scorecard {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            background-color: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 24px;
+        }
+        #gameover, #youwon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 48px;
+            display: none;
+            z-index: 200;
+        }
+        #gameover { background-color: rgba(255, 0, 0, 0.8); }
+        #youwon { background-color: rgba(0, 255, 0, 0.8); }
+        #restartBtn {
+            display: none;
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 20px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 300;
+        }
+        #restartBtn:hover { background: #ddd; }
+
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 20px;
+        }
+        .btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="startScreen">
+        <div class="rex-logo">REX</div>
+        <h1>🚀 Welcome to REX</h1>
+        <input type="text" id="playerName" placeholder="Enter your name" />
+        <button id="startBtn">Start Race</button>
+    </div>
+
+    <div id="gameHeader">
+        <div class="rex-logo-small">REX</div>
+        <div id="info">Use Arrow Keys or Touch Controls | Nitro Boost = SPACE</div>
+        <button id="changeIdBtn">Change ID</button>
+    </div>
+    <div id="scorecard">Score: 0</div>
+    <div id="gameover">Game Over</div>
+    <div id="youwon">🎉 YOU WON! 🎉</div>
+    <button id="restartBtn">Restart</button>
+
+    <div id="controls">
+        <div class="btn" id="leftBtn">⬅</div>
+        <div class="btn" id="nitroBtn">🚀</div>
+        <div class="btn" id="rightBtn">➡</div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        let camera, scene, renderer;
+        let playerCar, opponentCars = [];
+        const carSpeed = { forward: 0, turn: 0 };
+        let coins = [];
+        let score = 0;
+        let gameOver = false;
+        let finishZ = -3000;
+        let playerName = 'Player';
+        let nitroActive = false;
+        let dayNightLight;
+
+        const startScreen = document.getElementById('startScreen');
+        const playerNameInput = document.getElementById('playerName');
+        const startBtn = document.getElementById('startBtn');
+        const scorecard = document.getElementById('scorecard');
+        const gameOverScreen = document.getElementById('gameover');
+        const youWonScreen = document.getElementById('youwon');
+        const restartBtn = document.getElementById('restartBtn');
+        const changeIdBtn = document.getElementById('changeIdBtn');
+
+        window.onload = () => {
+            const savedName = localStorage.getItem('rexPlayerName');
+            if (savedName) {
+                playerName = savedName;
+                startScreen.style.display = 'none';
+                init();
+                animate();
+            }
+        };
+
+        startBtn.addEventListener('click', () => {
+            playerName = playerNameInput.value.trim() || 'Player';
+            localStorage.setItem('rexPlayerName', playerName);
+            startScreen.style.display = 'none';
+            init();
+            animate();
+        });
+
+        changeIdBtn.addEventListener('click', () => {
+            localStorage.removeItem('rexPlayerName');
+            location.reload();
+        });
+
+        restartBtn.addEventListener('click', () => location.reload());
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x222222);
+            scene.fog = new THREE.Fog(0x222222, 200, 1000);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
+            camera.position.set(0, 5, -10);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            dayNightLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            dayNightLight.position.set(200, 500, 300);
+            scene.add(dayNightLight);
+
+            createRoad();
+            createFinishLine();
+            createBuildings();
+            createCoins();
+            loadCarModels();
+
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            window.addEventListener('resize', onWindowResize);
+
+            document.getElementById('leftBtn').addEventListener('touchstart', () => carSpeed.turn = -0.5);
+            document.getElementById('leftBtn').addEventListener('touchend', () => carSpeed.turn = 0);
+            document.getElementById('rightBtn').addEventListener('touchstart', () => carSpeed.turn = 0.5);
+            document.getElementById('rightBtn').addEventListener('touchend', () => carSpeed.turn = 0);
+            document.getElementById('nitroBtn').addEventListener('touchstart', () => nitroActive = true);
+            document.getElementById('nitroBtn').addEventListener('touchend', () => nitroActive = false);
+        }
+
+        function createRoad() {
+            const roadGeometry = new THREE.PlaneGeometry(30, 6000);
+            const roadMaterial = new THREE.MeshPhongMaterial({ color: 0x404040 });
+            const road = new THREE.Mesh(roadGeometry, roadMaterial);
+            road.rotation.x = -Math.PI / 2;
+            scene.add(road);
+
+            const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            for (let i = -3000; i < 3000; i += 10) {
+                const lineGeometry = new THREE.PlaneGeometry(0.2, 4);
+                const line = new THREE.Mesh(lineGeometry, lineMaterial);
+                line.rotation.x = -Math.PI / 2;
+                line.position.set(0, 0.01, i);
+                scene.add(line);
+            }
+        }
+
+        function createFinishLine() {
+            const finishLine = new THREE.Mesh(
+                new THREE.PlaneGeometry(30, 5),
+                new THREE.MeshBasicMaterial({ color: 0xffff00 })
+            );
+            finishLine.rotation.x = -Math.PI / 2;
+            finishLine.position.z = finishZ;
+            scene.add(finishLine);
+        }
+
+        function createBuildings() {
+            const buildingGeometry = new THREE.BoxGeometry(1, 1, 1);
+            for (let i = 0; i < 100; i++) {
+                const buildingMaterial = new THREE.MeshPhongMaterial({ color: Math.random() * 0xffffff });
+                const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+                building.scale.set(Math.random() * 10 + 5, Math.random() * 40 + 10, Math.random() * 10 + 5);
+                building.position.set(Math.random() > 0.5 ? Math.random() * 50 + 20 : -(Math.random() * 50 + 20), building.scale.y / 2, Math.random() * 6000 - 3000);
+                scene.add(building);
+            }
+        }
+
+        function createCoins() {
+            const coinGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16);
+            const coinMaterial = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0xaa8800 });
+            for (let i = 0; i < 150; i++) {
+                const coin = new THREE.Mesh(coinGeometry, coinMaterial);
+                coin.rotation.x = Math.PI / 2;
+                coin.position.set(Math.random() * 20 - 10, 0.5, Math.random() * 6000 - 3000);
+                coins.push(coin);
+                scene.add(coin);
+            }
+        }
+
+        function loadCarModels() {
+            const loader = new GLTFLoader();
+            const carUrl = 'https://threejs.org/examples/models/gltf/ferrari.glb';
+
+            loader.load(carUrl, (gltf) => {
+                playerCar = gltf.scene;
+                playerCar.scale.set(0.6, 0.6, 0.6); 
+                playerCar.position.set(0, 0.4, 50);
+                playerCar.rotation.y = Math.PI;
+                scene.add(playerCar);
+            }, undefined, () => createFallbackCar('player'));
+
+            for (let i = 0; i < 20; i++) {
+                loader.load(carUrl, (gltf) => {
+                    let opponentCar = gltf.scene.clone();
+                    opponentCar.scale.set(0.6, 0.6, 0.6); 
+                    opponentCar.position.set((Math.random() * 12) - 6, 0.4, -(Math.random() * 2800 + 100));
+                    scene.add(opponentCar);
+                    opponentCars.push(opponentCar);
+                }, undefined, () => createFallbackCar('opponent'));
+            }
+        }
+
+        function createFallbackCar(type) {
+            const geometry = new THREE.BoxGeometry(1.5, 0.6, 3); 
+            const material = new THREE.MeshBasicMaterial({ color: type === 'player' ? 0x0000ff : 0xff0000 });
+            const car = new THREE.Mesh(geometry, material);
+            car.position.y = 0.5;
+            if (type === 'player') {
+                playerCar = car;
+                playerCar.rotation.y = Math.PI;
+            } else {
+                car.position.set(Math.random() * 10 - 5, 0.5, -(Math.random() * 2800 + 100));
+                opponentCars.push(car);
+            }
+            scene.add(car);
+        }
+
+        function onKeyDown(event) {
+            if (gameOver) return;
+            switch (event.key) {
+                case 'ArrowUp': carSpeed.forward = 4.0; break;
+                case 'ArrowDown': carSpeed.forward = -1.5; break;
+                case 'ArrowLeft': carSpeed.turn = -0.5; break;
+                case 'ArrowRight': carSpeed.turn = 0.5; break;
+                case ' ': nitroActive = true; break;
+            }
+        }
+
+        function onKeyUp(event) {
+            switch (event.key) {
+                case 'ArrowUp':
+                case 'ArrowDown': carSpeed.forward = 0; break;
+                case 'ArrowLeft':
+                case 'ArrowRight': carSpeed.turn = 0; break;
+                case ' ': nitroActive = false; break;
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function checkCollisions() {
+            if (!playerCar) return;
+            if (playerCar.position.z <= finishZ) {
+                gameOver = true;
+                youWonScreen.style.display = 'block';
+                restartBtn.style.display = 'block';
+                return;
+            }
+
+            opponentCars.forEach(opponentCar => {
+                const playerBox = new THREE.Box3().setFromObject(playerCar);
+                const opponentBox = new THREE.Box3().setFromObject(opponentCar);
+                if (playerBox.intersectsBox(opponentBox)) {
+                    gameOver = true;
+                    gameOverScreen.style.display = 'block';
+                    restartBtn.style.display = 'block';
+                    carSpeed.forward = 0;
+                    carSpeed.turn = 0;
+                }
+            });
+
+            const playerBox = new THREE.Box3().setFromObject(playerCar);
+            coins.forEach((coin, index) => {
+                const coinBox = new THREE.Box3().setFromObject(coin);
+                if (playerBox.intersectsBox(coinBox)) {
+                    scene.remove(coin);
+                    coins.splice(index, 1);
+                    score += 10;
+                    scorecard.textContent = `Score: ${score}`;
+                }
+            });
+        }
+
+        function animateOpponents() {
+            opponentCars.forEach(car => car.position.z += 0.5);
+        }
+
+        function updateDayNightCycle() {
+            const time = Date.now() * 0.00005;
+            const color = new THREE.Color().setHSL((0.6 + 0.4 * Math.sin(time)) % 1, 0.5, 0.5);
+            scene.background = color;
+            dayNightLight.color = color;
+        }
+
+        function animate() {
+            if (gameOver) return;
+            requestAnimationFrame(animate);
+            if (!playerCar) return;
+
+            let speed = carSpeed.forward;
+            if (nitroActive) speed *= 2.5;
+
+            const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(playerCar.quaternion);
+            playerCar.position.add(forward.multiplyScalar(speed));
+
+            playerCar.position.x += carSpeed.turn;
+
+            camera.position.z = playerCar.position.z + 10;
+            camera.position.x = playerCar.position.x;
+            camera.lookAt(playerCar.position.x, playerCar.position.y + 2, playerCar.position.z - 10);
+
+            checkCollisions();
+            animateOpponents();
+            updateDayNightCycle();
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
